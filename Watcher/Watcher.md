@@ -1,9 +1,9 @@
 
-Watcher is a Linux medium based machine developed by `DarkCaT` and `whatev3n`. The machine consist of an interesting chain of vulnerabilities that could be seen in corporate environments.
+Watcher is a Linux medium-based machine developed by `DarkCaT` and `whatev3n`. The machine consists of an interesting chain of vulnerabilities that could be seen in corporate environments.
 
 ## Nmap
 
-As with any machine regardless on a CTF or not, we need to start by enumerating the open ports to understand what kind of services that we could reach over the VPN. Lately, I've developed the habit of running a verbose `Nmap` scans, meaning that I can still peek into the services without waiting for the scan to determine the version and/or run the default scripts that `Nmap` has.
+As with any machine regardless on a CTF or not, we need to start by enumerating the open ports to understand what kind of services we could reach over the VPN. Lately, I've developed the habit of running verbose `Nmap` scans, meaning that I can still peek into the services without waiting for the scan to determine the version and/or run the default scripts that `Nmap` has.
 
 ```bash
 ┌──(kali㉿kali)-[~/vulnlab/watcher-notes]
@@ -30,7 +30,7 @@ Discovered open port 22/tcp on 10.10.117.23
 <SNIP>
 ```
 
-As we can see from the snippet, `Nmap` quickly discovers two ports open, 22 and 80. And as most of you might already know, those ports are commonly used for `SSH` and `HTTP` respectively.
+As we can see from the snippet, `Nmap` quickly discovers two ports open, 22 and 80. As most of you might already know, those ports are commonly used for `SSH` and `HTTP` respectively.
 
 Additionally, we can also peek into the more descriptive results of `Nmap` where we can check the service banners etc. 
 
@@ -58,9 +58,9 @@ Subsequently, we will notice that the HTTP service redirects to `watcher.vl`, wh
 
 Upon visiting the web page, we are greeted with somewhat of a static page with minimal information that we could leverage:
 
-![[Watcher-47.png]]
+![Watcher-47.png](assets/Watcher-47.png)
 
-Due to the lack of useful information on the static page, we are going to proceed by performing a subdomain brute-force using `ffuf` to discover potential subdomains. Most of the people who use `ffuf` will try to pinpoint the filter size of a false pages/subdomains etc using the `-fc` (filter size) parameter, however, I found that the `-ac` (automatic calibration filter) to be more helpful and easy to use as you don't bother with pinpointing different response sizes.
+Due to the lack of useful information on the static page, we are going to proceed by performing a subdomain brute-force using `ffuf` to discover potential subdomains. Most of the people who use `ffuf` will try to pinpoint the filter size of false pages/subdomains etc using the `-fc` (filter size) parameter, however, I found that the `-ac` (automatic calibration filter) to be more helpful and easy to use as you don't bother with pinpointing different response sizes.
 
 ```bash
 ┌──(kali㉿kali)-[~/vulnlab/watcher-notes]
@@ -92,7 +92,7 @@ zabbix                  [Status: 200, Size: 3946, Words: 199, Lines: 33, Duratio
 ```
 
 
-From the subdomain brute-force, we have found a potential subdomain which we can assume being related to [Zabbix](https://www.zabbix.com/). Zabbix is mostly used in environments as an asset management tool, that could automate the tedious tasks of checking usage on different system components, execution of commands on hosts etc. We will add the subdomain again to our `/etc/hosts` file. Also, if you are pedantic about the entries in your `hosts` file, you can follow along using a text editor of choice like `vi` / `vim`.
+From the subdomain brute force, we have found a potential subdomain which we can assume is related to [Zabbix](https://www.zabbix.com/). Zabbix is mostly used in environments as an asset management tool, that could automate the tedious tasks of checking usage on different system components, execution of commands on hosts etc. We will add the subdomain again to our `/etc/hosts` file. Also, if you are pedantic about the entries in your `hosts` file, you can follow along using a text editor of choice like `vi` / `vim`.
 
 ```bash
 ┌──(kali㉿kali)-[~/vulnlab/watcher-notes]
@@ -101,17 +101,17 @@ From the subdomain brute-force, we have found a potential subdomain which we can
 
 Upon visiting `Zabbix`, we are going to be facing a log-in page.
 
-![[Watcher-48.png]]
+![Watcher-48.png](assets/Watcher-48.png)
 
-Most of the organizations will disable the `sign in as guest` option, but in our case it is enabled and we can utilize this kind of access to enumerate hosts.
+Most of organizations will disable the `sign in as guest` option, but in our case, it is enabled and we can utilize this kind of access to enumerate hosts.
 
 ![[Watcher-49.png]]
 
-We can see that there is a single host added, additionally, the footer contains a valuable information such as the current version in use.
+We can see that there is a single host added, additionally, the footer contains valuable information such as the current version in use.
 
 Reviewing the reported bugs/vulnerabilities on the official website, we stumble upon the following case where a Time Based SQL Injection was reported - https://support.zabbix.com/browse/ZBX-24505 and it affects the version used on `Watcher`.
 
-With a few more Google searches, we stumble upon the following GitHub repository of the [CVE](https://github.com/W01fh4cker/CVE-2024-22120-RCE). We can proceed to clone the repository and further utilize the Python scripts for remote-code execution.
+With a few more Google searches, we stumbled upon the following GitHub repository of the [CVE](https://github.com/W01fh4cker/CVE-2024-22120-RCE). We can proceed to clone the repository and further utilize the Python scripts for remote-code execution.
 
 ```bash
 ┌──(kali㉿kali)-[~/vulnlab/watcher-notes]
@@ -147,7 +147,7 @@ We can use the following [recipe](https://gchq.github.io/CyberChef/#recipe=URL_D
 {"sessionid":"81cd39b5189978ffb8f7f8d4b4eab23e","serverCheckResult":true,"serverCheckTime":1722581930,"sign":"17812950016685fcc358760184c33fa57dbdeb7ada77201ec227338154821f9d"}
 ```
 
-And the `hostid` can be taken from the response of the `POST` request to `zabbix.php?action=host.view.refresh`, which looks like the following:
+The `hostid` can be taken from the response of the `POST` request to `zabbix.php?action=host.view.refresh`, which looks like the following:
 
 ```html
 <SNIP>
@@ -257,7 +257,7 @@ You can turn off this feature to get a quicker startup with -A
 Database changed
 ```
 
-Having foot in the database, we can poke into the `users` table hoping to find something interesting:
+Having a foot in the database, we can poke into the `users` table hoping to find something interesting:
 
 ```mysql
 mysql> select username,passwd from users;
@@ -281,11 +281,11 @@ Query OK, 1 row affected (0.01 sec)
 Rows matched: 1  Changed: 1  Warnings: 0
 ```
 
-Once we have updated the password, we can return to Zabbix and log in as `Admin`. Subsequently, having an administrative access, we can review the `Audit log` where we come across at an interesting behavior (information). The user `Frank` logs in and logs out every minute.
+Once we have updated the password, we can return to Zabbix and log in as `Admin`. Subsequently, having administrative access, we can review the `Audit log` where we come across an interesting behaviour (information). The user `Frank` logs in and logs out every minute.
 
-![[Watcher-50.png]]
+![Watcher-50.png](assets/Watcher-50.png)
 
-With that information in our advantage, we can safely assume that there is an automation aimed at mimicking user behavior. That being said, since we have `write` access in the directory of the application, we can alter the `index.php` file to capture the credentials of the user.
+With that information to our advantage, we can safely assume that automation is aimed at mimicking user behaviour. That being said since we have `write` access in the directory of the application, we can alter the `index.php` file to capture the credentials of the user.
 
 By adding the following lines in the PHP file, we are going to capture every authentication and its credentials in a file called `creds.txt`:
 
@@ -355,7 +355,7 @@ PORT      STATE SERVICE
 58237/tcp open  unknown
 ```
 
-Based on the results there are few more ports (services) running on the machine, than initially we thought. 
+Based on the results there are a few more ports (services) running on the machine than initially we thought. 
 
 Doing a simple `curl` request on port `8111`, we find out that it is running `TeamCity`. Note: We could have found that using another approach with the help of `pspy`, where we will see that the `root` user is responsible for `TeamCity`.
 
@@ -383,7 +383,7 @@ Subsequently, with that information in hand, we are going to utilize `chisel` to
 2024/08/02 10:50:59 server: session#1: tun: proxy#R:8111=>8111: Listening
 ```
 
-And on the target machine we initiate the `client` mode and connect to the server (ourselves):
+On the target machine, we initiate the `client` mode and connect to the server (ourselves):
 
 ```bash
 zabbix@watcher:/usr/share/zabbix$ ./chisel client IP:3:8081 R:8111:127.0.0.1:8111
@@ -392,35 +392,35 @@ zabbix@watcher:/usr/share/zabbix$ ./chisel client IP:3:8081 R:8111:127.0.0.1:811
 2024/08/02 07:50:59 client: Connected (Latency 40.177246ms)
 ```
 
-Having establish the port forwarding, we can proceed to visit the application on port `8111` via our browser, and subsequently, log in using `Frank`'s credentials. 
+Having established the port forwarding, we can proceed to visit the application on port `8111` via our browser, and subsequently, log in using `Frank`'s credentials. 
 
-![[Watcher-51.png]]
+![Watcher-51.png](assets/Watcher-51.png)
 
 We are presented with information about the version used, however, if we attempt to search for vulnerabilities related to that version we will find a few, but due to the configuration of `TeamCity` neither of them will work. At this point I have hit a wall, however, every application has some kind of auditing and this is the case with `TeamCity`. Since `Frank` has administrative access we can poke into the `Audit` functionality.
 
-![[Watcher-52.png]]
+![Watcher-52.png](assets/Watcher-52.png)
 
 As we can see there are a few entries, which were probably left by the authors as a hint. And, as `TeamCity` is used as `CI/CD`, we can create a project and create a `Build Configuration Templates` to perform code execution.
 
-![[Watcher-53.png]]
+![Watcher-53.png](assets/Watcher-53.png)
 
-Within `Build Steps` there a plenty of various code so called "runners", but in our case we are going to stick to the `Command Line` one.
+Within `Build Steps` there a plenty of various code so-called "runners", but in our case we are going to stick to the `Command Line` one.
 
-![[Watcher-54.png]]
+![Watcher-54.png](assets/Watcher-54.png)
 
 We are going to use the trivial `bash` reverse shell for our script.
 
-![[Watcher.png]]
+![Watcher.png](assets/Watcher.png)
 
 We will then `Create a build configuration from this template`:
 
-![[Watcher-55.png]]
+![Watcher-55.png](assets/Watcher-55.png)
 
 Subsequently, once created we need to `Run` the build configuration, which will establish a reverse shell connection to us:
 
-![[Watcher-56.png]]
+![Watcher-56.png](assets/Watcher-56.png)
 
-After a few seconds we will have a reverse shell as the `root` user:
+After a few seconds, we will have a reverse shell as the `root` user:
 
 ```bash
 ┌──(kali㉿kali)-[~/vulnlab/watcher-notes]
