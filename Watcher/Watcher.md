@@ -105,13 +105,13 @@ Upon visiting `Zabbix`, we are going to be facing a log-in page.
 
 Most of organizations will disable the `sign in as guest` option, but in our case, it is enabled and we can utilize this kind of access to enumerate hosts.
 
-![[Watcher-49.png]]
+![Watcher-49.png](assets/Watcher-49.png)
 
 We can see that there is a single host added, additionally, the footer contains valuable information such as the current version in use.
 
 Reviewing the reported bugs/vulnerabilities on the official website, we stumble upon the following case where a Time Based SQL Injection was reported - https://support.zabbix.com/browse/ZBX-24505 and it affects the version used on `Watcher`.
 
-With a few more Google searches, we stumbled upon the following GitHub repository of the [CVE](https://github.com/W01fh4cker/CVE-2024-22120-RCE). We can proceed to clone the repository and further utilize the Python scripts for remote-code execution.
+With a few more Google searches, we stumbled upon the following GitHub repository of the [CVE](https://github.com/W01fh4cker/CVE-2024-22120-RCE). We can proceed to clone the repository and further utilize the Python scripts for remote code execution.
 
 ```bash
 ┌──(kali㉿kali)-[~/vulnlab/watcher-notes]
